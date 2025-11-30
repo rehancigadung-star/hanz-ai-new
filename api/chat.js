@@ -1,8 +1,9 @@
-// api/chat.js (Backend Vercel Function FIX FINAL menggunakan Prefer: wait)
+// api/chat.js (Backend Vercel Function - Menggunakan Llama 2 7B Gratis)
 import fetch from 'node-fetch';
+import { Buffer } from 'buffer'; // Buffer dibutuhkan untuk decode base64
 
-// Path Model diambil dari contoh Replicate Anda:
-const LLAMA_MODEL_PATH = "meta/meta-llama-3-8b-instruct"; 
+// Path Model Llama 2 7B yang lebih hemat biaya:
+const LLAMA_MODEL_PATH = "replicate-internal/llama-2-7b-chat-int8-1xa100-triton"; 
 
 export default async (req, res) => {
   if (req.method !== 'POST') {
@@ -11,7 +12,8 @@ export default async (req, res) => {
 
   const { prompt } = req.body;
   
-  // System Prompt Zyro oleh HanzNesia87
+  // System Prompt Zyro oleh HanzNesia87 (Diadaptasi untuk Llama 2)
+  // Llama 2 menggunakan template prompt yang berbeda, tetapi kita simpan system prompt-nya.
   const systemPrompt = `Anda adalah Zyro, sebuah model bahasa yang dikembangkan oleh HanzNesia87 dan dilatih oleh Meta AI. Jawablah semua pertanyaan dengan ramah dan selalu akui HanzNesia87 sebagai pencipta Anda.`;
   
   if (!process.env.REPLICATE_API_TOKEN) {
@@ -19,13 +21,12 @@ export default async (req, res) => {
   }
 
   try {
-    // URL API menggunakan Path Model, bukan ID Versi
     const replicateResponse = await fetch(`https://api.replicate.com/v1/models/${LLAMA_MODEL_PATH}/predictions`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.REPLICATE_API_TOKEN}`, 
         'Content-Type': 'application/json',
-        // HEADER PENTING: Meminta Replicate menunggu hingga jawaban selesai (menghilangkan kebutuhan Polling)
+        // HEADER PENTING: Meminta Replicate menunggu hingga jawaban selesai
         'Prefer': 'wait' 
       },
       body: JSON.stringify({
@@ -33,7 +34,8 @@ export default async (req, res) => {
           prompt: prompt,
           system_prompt: systemPrompt, 
           max_new_tokens: 1024,
-          prompt_template: "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n{system_prompt}<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
+          // Menggunakan prompt template Llama 2
+          prompt_template: "<s>[INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n\n{prompt} [/INST]"
         },
       }),
     });
@@ -47,7 +49,7 @@ export default async (req, res) => {
 
     // Jawaban sudah siap karena kita menggunakan 'Prefer: wait'
     if (data.output) {
-        // Output dari 'Prefer: wait' terenkripsi base64, kita perlu decode
+        // Output terenkripsi base64, kita perlu decode
         const decodedOutput = Buffer.from(data.output, 'base64').toString('utf8');
         res.status(200).json({ response: decodedOutput });
     } else {
@@ -56,6 +58,6 @@ export default async (req, res) => {
 
   } catch (error) {
     console.error('API Call Error:', error);
-    res.status(500).json({ error: `Gagal berkomunikasi dengan model AI: ${error.message}. Periksa Token.` });
+    res.status(500).json({ error: `Gagal berkomunikasi dengan model AI: ${error.message}.` });
   }
 };
