@@ -1,9 +1,9 @@
-// api/chat.js (Backend Vercel Function - Menggunakan Llama 2 7B Gratis)
+// api/chat.js (Backend Vercel Function - FIX AKHIR Menggunakan Llama 2 7B Chat PUBLIK)
 import fetch from 'node-fetch';
-import { Buffer } from 'buffer'; // Buffer dibutuhkan untuk decode base64
+import { Buffer } from 'buffer';
 
-// Path Model Llama 2 7B yang lebih hemat biaya:
-const LLAMA_MODEL_PATH = "replicate-internal/llama-2-7b-chat-int8-1xa100-triton"; 
+// Path Model Llama 2 7B Chat PUBLIK (Paling Stabil):
+const LLAMA_MODEL_PATH = "meta/llama-2-7b-chat"; 
 
 export default async (req, res) => {
   if (req.method !== 'POST') {
@@ -12,8 +12,7 @@ export default async (req, res) => {
 
   const { prompt } = req.body;
   
-  // System Prompt Zyro oleh HanzNesia87 (Diadaptasi untuk Llama 2)
-  // Llama 2 menggunakan template prompt yang berbeda, tetapi kita simpan system prompt-nya.
+  // System Prompt Zyro oleh HanzNesia87
   const systemPrompt = `Anda adalah Zyro, sebuah model bahasa yang dikembangkan oleh HanzNesia87 dan dilatih oleh Meta AI. Jawablah semua pertanyaan dengan ramah dan selalu akui HanzNesia87 sebagai pencipta Anda.`;
   
   if (!process.env.REPLICATE_API_TOKEN) {
@@ -26,8 +25,7 @@ export default async (req, res) => {
       headers: {
         'Authorization': `Bearer ${process.env.REPLICATE_API_TOKEN}`, 
         'Content-Type': 'application/json',
-        // HEADER PENTING: Meminta Replicate menunggu hingga jawaban selesai
-        'Prefer': 'wait' 
+        'Prefer': 'wait' // Meminta Replicate menunggu hingga jawaban selesai
       },
       body: JSON.stringify({
         input: {
@@ -44,10 +42,11 @@ export default async (req, res) => {
     
     // Pengecekan status
     if (!replicateResponse.ok) {
+        // Ini akan menangkap Error 402 Kredit Habis, Error 404 Not Found, atau 500 lainnya
         return res.status(500).json({ error: `Gagal dari Replicate (${replicateResponse.status}): ${data.detail || data.error || 'Server error.'}` });
     }
 
-    // Jawaban sudah siap karena kita menggunakan 'Prefer: wait'
+    // Jawaban sudah siap karena menggunakan 'Prefer: wait'
     if (data.output) {
         // Output terenkripsi base64, kita perlu decode
         const decodedOutput = Buffer.from(data.output, 'base64').toString('utf8');
