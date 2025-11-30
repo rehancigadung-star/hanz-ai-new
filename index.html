@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zyro AI - Powered by HanzNesia87</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- CSS (Gaya Mirip Lioner - Dark Mode) --- */
+        :root {
+            /* Tema Gelap Default */
+            --background-color: #0c0c0c; 
+            --container-bg: #1a1a1a;
+            --primary-color: #3b82f6; 
+            --text-color: #ffffff;
+            --input-bg: #2b2b2b; 
+            --border-color: #333333;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            background-color: var(--background-color);
+            padding: 0;
+            color: var(--text-color);
+            transition: background-color 0.3s ease;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 768px;
+            min-height: 100vh;
+            background: var(--container-bg);
+            box-shadow: none; 
+            display: flex;
+            flex-direction: column;
+            border-radius: 0;
+            overflow-y: auto; 
+            transition: background-color 0.3s ease;
+        }
+
+        header {
+            background-color: var(--container-bg);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0; 
+            position: sticky; 
+            top: 0;
+            z-index: 10;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .logo-branding-area {
+            display: flex;
+            align-items: center; 
+        }
+
+        .logo-image {
+            width: 40px; 
+            height: 40px;
+            border-radius: 6px; 
+            margin-right: 12px; 
+            box-sizing: border-box;
+        }
+
+        .logo-area {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+            align-items: flex-start;
+        }
+
+        .logo-area strong {
+            font-size: 1.5em; 
+            color: var(--text-color);
+            font-weight: 700;
+        }
+
+        .logo-area span {
+            font-size: 0.8em; 
+            color: #999999; 
+        }
+
+        #theme-toggle {
+            background-color: transparent; 
+            color: var(--text-color); 
+            border: 1px solid var(--border-color); 
+            padding: 8px 15px;
+            border-radius: 8px; 
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s, border-color 0.2s, color 0.3s ease;
+        }
+        
+        #theme-toggle:hover {
+            background-color: #333333;
+            border-color: #4a4a4a;
+        }
+
+        #chat-output {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: var(--container-bg);
+            display: flex;
+            flex-direction: column; 
+            gap: 15px; 
+            flex-shrink: 1; 
+            justify-content: flex-start; 
+            align-items: flex-start;
+            min-height: calc(100vh - 60px - 70px); 
+        }
+        
+        #welcome-message {
+            text-align: center;
+            color: #888;
+            font-size: 1.1em;
+            padding: 20px;
+            max-width: 60%;
+            opacity: 0.8;
+            
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1; 
+            justify-content: center; 
+            align-items: center; 
+        }
+        
+        #welcome-message strong {
+            display: block;
+            font-size: 1.8em;
+            color: var(--text-color);
+            margin-bottom: 10px;
+            text-align: center;
+            font-style: normal;
+            font-weight: 700;
+        }
+        
+        #welcome-message p {
+            text-align: center;
+            font-style: normal;
+        }
+
+        /* Message Box Styles */
+        .message-container {
+            margin-bottom: 0; 
+            display: flex;
+            width: 100%; 
+        }
+        
+        .user-message-box {
+            align-self: flex-end;
+            margin-left: auto; 
+            max-width: 80%;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 12px 12px 0 12px;
+            word-wrap: break-word;
+            line-height: 1.4;
+            font-size: 0.9em;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+        }
+
+        .ai-response-box {
+            align-self: flex-start;
+            margin-right: auto; 
+            max-width: 80%;
+            background-color: var(--input-bg); 
+            color: var(--text-color);
+            padding: 10px 15px;
+            border-radius: 12px 12px 12px 0;
+            word-wrap: break-word;
+            line-height: 1.4;
+            font-size: 0.9em;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .read-button {
+            margin-top: 10px; 
+            padding: 4px 10px;
+            background-color: #4a4a4a; 
+            color: white;
+            border: none;
+            border-radius: 10px; 
+            font-size: 10px; 
+            cursor: pointer;
+            float: left; 
+            transition: background-color 0.2s;
+            clear: both; 
+        }
+        
+        .read-button:hover {
+            background-color: #5e5e5e;
+        }
+
+        .input-area {
+            padding: 10px 15px; 
+            display: flex;
+            align-items: center; 
+            background-color: var(--container-bg);
+            border-top: 1px solid var(--border-color);
+            flex-shrink: 0; 
+            z-index: 20; 
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        #user-input {
+            flex-grow: 1;
+            padding: 12px 18px; 
+            border: 1px solid var(--border-color); 
+            border-radius: 24px; 
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1em;
+            margin-right: 12px; 
+            outline: none;
+            transition: box-shadow 0.2s, border-color 0.2s, background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        #user-input:focus {
+            box-shadow: 0 0 0 2px var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        #send-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px; 
+            width: 70px; 
+            height: 48px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-size: 1em; 
+            font-weight: 600; 
+        }
+        
+        #send-button:hover:not(:disabled) {
+            background-color: #3070d6;
+        }
+
+        #send-button:disabled {
+            background-color: #4a4a4a;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .loading {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid var(--text-color);
+            border-radius: 50%;
+            width: 16px; 
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-branding-area">
+                <img src="https://telegra.ph/file/55a015283055336dc2997.jpg" alt="Logo Zyro" class="logo-image">
+                <div class="logo-area">
+                    <strong>Zyro</strong>
+                    <span>Powered by HanzNesia87</span>
+                </div>
+            </div>
+            <button id="theme-toggle">Light/Dark</button>
+        </header>
+        <div id="chat-output">
+            <div class="message-container initial-greeting">
+                <div class="ai-response-box" data-text="Halo! Saya Zyro. Saya Dibuat Oleh HanzNesia87, Senang Bertemu Denganmu!">
+                    Halo! Saya Zyro. Saya Dibuat Oleh HanzNesia87, Senang Bertemu Denganmu!
+                    <button class="read-button" onclick="bacakanTeks(this)">Bacakan</button>
+                </div>
+            </div>
+            <div id="welcome-message">
+                <strong>Zyro</strong>
+                <p>Apa yang bisa saya bantu?</p>
+            </div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Tulis pesan...">
+            <button id="send-button">Kirim</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Bagian JavaScript (Fungsionalitas API & Tema) ---
+        
+        // ******************************************************
+        // PERUBAHAN KRUSIAL: Memanggil Vercel Serverless Function
+        // ******************************************************
+        const API_URL = "/api/chat"; // URL ini akan memanggil file api/chat.js Anda di Vercel
+        
+        const inputField = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const chatOutput = document.getElementById('chat-output');
+        const themeToggle = document.getElementById('theme-toggle');
+        const welcomeMessage = document.getElementById('welcome-message');
+
+        let history = []; 
+        
+        // Jawaban kustom untuk identitas (menggantikan Llama 3)
+        const CUSTOM_NAME_RESPONSE = "Nama saya **Zyro**, saya adalah model bahasa besar yang **dibuat oleh HanzNesia87 dan dilatih oleh Meta AI**. Ada lagi yang bisa saya bantu?"; 
+
+        sendButton.addEventListener('click', sendMessage);
+        inputField.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Fungsionalitas Tema Sederhana
+        themeToggle.addEventListener('click', () => {
+            const root = document.documentElement;
+            const currentBg = root.style.getPropertyValue('--background-color');
+            
+            if (currentBg === '#0c0c0c') { 
+                // Ubah ke Light Mode
+                root.style.setProperty('--background-color', '#F0F2F5'); 
+                root.style.setProperty('--container-bg', '#FFFFFF');
+                root.style.setProperty('--text-color', '#333333');
+                root.style.setProperty('--input-bg', '#E9ECEF');
+                root.style.setProperty('--primary-color', '#007bff'); 
+                root.style.setProperty('--border-color', '#D0D0D0');
+                themeToggle.textContent = 'Dark/Light';
+            } else {
+                // Ubah ke Dark Mode
+                root.style.setProperty('--background-color', '#0c0c0c');
+                root.style.setProperty('--container-bg', '#1a1a1a');
+                root.style.setProperty('--text-color', '#ffffff');
+                root.style.setProperty('--input-bg', '#2b2b2b');
+                root.style.setProperty('--primary-color', '#3b82f6');
+                root.style.setProperty('--border-color', '#333333');
+                themeToggle.textContent = 'Light/Dark';
+            }
+        });
+
+        // --- FUNGSI BACAKAN TEKS ---
+        function bacakanTeks(tombol) {
+            window.speechSynthesis.cancel();
+            
+            const responseBox = tombol.closest('.ai-response-box');
+            // Mengambil data-text (teks mentah) untuk dibacakan
+            const teksLengkap = responseBox.getAttribute('data-text').trim(); 
+
+            if (!teksLengkap || !('speechSynthesis' in window)) {
+                if (!('speechSynthesis' in window)) {
+                    alert("Maaf, fitur Text-to-Speech tidak didukung oleh browser Anda.");
+                }
+                return;
+            }
+
+            const chunks = teksLengkap.split(/[\.\n\?!;…]/g).filter(chunk => chunk.trim() !== '');
+
+            function speakChunk(index) {
+                if (index >= chunks.length) {
+                    return; 
+                }
+
+                let chunk = chunks[index].trim();
+                
+                if (chunk.length < 5) {
+                    chunk += ',';
+                }
+                
+                if (!/[.!?]$/.test(chunk)) {
+                    chunk += '.'; 
+                }
+
+                const ucapan = new SpeechSynthesisUtterance(chunk); 
+                ucapan.lang = 'id-ID'; 
+                
+                ucapan.onend = () => {
+                    speakChunk(index + 1);
+                };
+
+                ucapan.onerror = (e) => {
+                    console.error('Speech error:', e);
+                    speakChunk(index + 1);
+                };
+
+                window.speechSynthesis.speak(ucapan);
+            }
+
+            speakChunk(0);
+        }
+        // --- AKHIR FUNGSI TTS ---
+
+
+        // Fungsi displayMessage
+        function displayMessage(content, type) {
+            if (welcomeMessage) {
+                welcomeMessage.style.display = 'none';
+            }
+            
+            const containerDiv = document.createElement('div');
+            containerDiv.className = 'message-container';
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type === 'user' ? 'user-message-box' : 'ai-response-box';
+            
+            // Mengubah markdown **bold** menjadi <strong>
+            let htmlContent = content.replace(/\n/g, '<br>');
+            htmlContent = htmlContent.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            messageDiv.innerHTML = htmlContent; 
+            
+            if (type === 'ai') {
+                // Simpan teks mentah untuk fitur bacakan
+                messageDiv.setAttribute('data-text', content.replace(/\*\*/g, '')); 
+                
+                const readButton = document.createElement('button');
+                readButton.className = 'read-button';
+                readButton.textContent = 'Bacakan';
+                readButton.setAttribute('onclick', 'bacakanTeks(this)');
+                
+                messageDiv.appendChild(readButton);
+            }
+            
+            containerDiv.appendChild(messageDiv);
+            
+            chatOutput.appendChild(containerDiv);
+            
+            chatOutput.scrollTop = chatOutput.scrollHeight;
+            return messageDiv;
+        }
+        
+        // Fungsi sendMessage
+        async function sendMessage() {
+            const userText = inputField.value.trim();
+            if (userText === "") return;
+
+            if (welcomeMessage) {
+                welcomeMessage.style.display = 'none';
+            }
+
+            displayMessage(userText, 'user');
+            
+            const lowerCaseText = userText.toLowerCase();
+            const nameKeywords = ["siapa nama anda", "siapa yang membuat anda", "namamu siapa", "kamu siapa", "siapa kamu", "nama lu siapa", "kamu siapa?", "siapa yang buat", "dibuat siapa", "anda dibuat siapa"];
+            
+            let customResponse = null;
+            for (const keyword of nameKeywords) {
+                if (lowerCaseText.includes(keyword)) {
+                    customResponse = CUSTOM_NAME_RESPONSE;
+                    break;
+                }
+            }
+
+            if (customResponse) {
+                inputField.value = '';
+                displayMessage(customResponse, 'ai'); 
+                // Tidak perlu memasukkan ke history karena kita tidak menggunakan history saat ini.
+                inputField.focus();
+                chatOutput.scrollTop = chatOutput.scrollHeight;
+                return; 
+            }
+
+            // TIDAK PERLU HISTORY KARENA LLAMA 3 DI REPLICATE MENGATUR HISTORY DI SISI MEREKA
+            // history.push({ role: "user", parts: [{ text: userText }] }); 
+
+            inputField.value = '';
+            sendButton.disabled = true;
+            sendButton.innerHTML = '<div class="loading"></div>';
+            
+            const loadingMessageDiv = displayMessage('...', 'ai'); 
+            
+            try {
+                // 1. Persiapan Payload untuk Vercel Function (hanya mengirim prompt)
+                const payload = {
+                    prompt: userText, // Mengirim teks prompt terbaru saja
+                };
+                
+                // 2. Kirim ke Vercel Function (URL /api/chat)
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorDetails = await response.text();
+                    // Menangani error HTTP 400, 401, 500 dari Vercel/Replicate
+                    throw new Error(`Kesalahan Koneksi: ${response.status}. ${errorDetails.substring(0, 150)}...`);
+                }
+
+                const data = await response.json();
+                
+                // 3. Cek Error dari Response Body
+                if (data.error) {
+                    throw new Error(`Kesalahan API Llama 3: ${data.error}`);
+                }
+                
+                // 4. Ekstraksi dan Tampilkan Jawaban (Jawaban ada di data.response dari api/chat.js)
+                const aiResponseText = data.response || "Maaf, tidak dapat memproses permintaan ini. (Jawaban kosong)";
+
+                loadingMessageDiv.remove();
+                displayMessage(aiResponseText, 'ai');
+                
+            } catch (error) {
+                console.error('Error saat mengambil data:', error);
+                
+                // Pesan error yang lebih jelas di chat box
+                loadingMessageDiv.innerHTML = `⚠️ Error: ${error.message}. Silakan coba lagi.`;
+            } finally {
+                sendButton.disabled = false;
+                sendButton.innerHTML = 'Kirim';
+                inputField.focus();
+                chatOutput.scrollTop = chatOutput.scrollHeight;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const root = document.documentElement;
+            themeToggle.textContent = 'Light/Dark'; 
+        });
+    </script>
+</body>
+  </html>
+  
