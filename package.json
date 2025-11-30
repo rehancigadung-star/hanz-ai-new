@@ -1,0 +1,13 @@
+{
+  "name": "hanz-ai-new",
+  "version": "1.0.0",
+  "description": "Zyro AI Chatbot using Llama 3 via Replicate on Vercel",
+  "main": "api/chat.js",
+  "type": "module",
+  "dependencies": {
+    "node-fetch": "^3.0.0"
+  },
+  "scripts": {
+    "start": "echo 'Running Vercel Serverless Function'"
+  }
+}
