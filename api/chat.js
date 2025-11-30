@@ -1,9 +1,8 @@
-// api/chat.js (Backend Vercel Function - FIX dengan Mistral 7B Base)
+// api/chat.js (Backend Vercel Function - FIX Error Handling)
 import fetch from 'node-fetch';
 
-// Path Model Mistral 7B yang dipilih:
+// Tetap menggunakan Mistral 7B Base
 const MISTRAL_MODEL_PATH = "mistralai/mistral-7b-v0.1";
-// ID versi yang sudah disalin (3e8a0fb6...)
 const MISTRAL_VERSION_ID = "3e8a0fb6d7812ce30701ba597e5080689bef8a013e5c6a724fafb108cc2426a0"; 
 
 export default async (req, res) => {
@@ -13,11 +12,7 @@ export default async (req, res) => {
 
   const { prompt } = req.body;
   
-  // 1. Tentukan Identitas (System Prompt)
-  // Karena ini model BASE, kita gabungkan identitas ke dalam prompt
   const systemIdentity = `Anda adalah Zyro, sebuah model bahasa yang dikembangkan oleh HanzNesia87. Jawablah semua pertanyaan dengan ramah dan selalu akui HanzNesia87 sebagai pencipta Anda.`;
-  
-  // Gabungkan identitas dan prompt pengguna (Ini adalah format terbaik untuk model base)
   const formattedPrompt = `${systemIdentity}\n\nUser: ${prompt}\n\nZyro:`;
   
   if (!process.env.REPLICATE_API_TOKEN) {
@@ -25,7 +20,7 @@ export default async (req, res) => {
   }
 
   try {
-    // 2. Kirim Permintaan Prediksi (Mendapatkan URL Polling)
+    // 1. Kirim Permintaan Prediksi (Mendapatkan URL Polling)
     const createPredictionResponse = await fetch(`https://api.replicate.com/v1/predictions`, {
       method: 'POST',
       headers: {
@@ -35,27 +30,37 @@ export default async (req, res) => {
       body: JSON.stringify({
         version: MISTRAL_VERSION_ID, 
         input: {
-          prompt: formattedPrompt, // Menggunakan prompt yang sudah digabungkan
+          prompt: formattedPrompt, 
           max_new_tokens: 1024,
         },
       }),
     });
-
+    
     const data = await createPredictionResponse.json();
-    
-    if (createPredictionResponse.status === 401) {
-        return res.status(500).json({ error: "Kesalahan Token API: Token Replicate Anda tidak valid." });
+
+    // *** PENGECEKAN STATUS BARU DAN LEBIH KUAT ***
+    if (!createPredictionResponse.ok || data.error || data.detail) {
+        const statusCode = createPredictionResponse.status;
+        const errorMessage = data.detail || data.error || 'Server error. Mungkin masalah kredit atau parameter.';
+
+        // Menampilkan pesan error yang sebenarnya
+        return res.status(500).json({ 
+            error: `Gagal dari Replicate (${statusCode}): ${errorMessage}`
+        });
     }
-    if (data.error) {
-         return res.status(500).json({ error: `Gagal dari Replicate: ${data.detail || data.error}.` });
+
+    // Pengecekan agar 'data.urls.get' tidak undefined
+    if (!data.urls || !data.urls.get) {
+         return res.status(500).json({ error: 'Gagal mendapatkan URL prediksi. Mungkin masalah kredit Replicate (Status 402) atau kesalahan parameter input.' });
     }
+    // *** AKHIR PENGECEKAN STATUS BARU ***
     
-    // 3. Polling: Mengambil Jawaban Sampai Selesai (Mengatasi Asinkronus)
+    // 2. Polling: Mengambil Jawaban Sampai Selesai
     const predictionUrl = data.urls.get;
     let predictionData = data;
 
     while (predictionData.status !== 'succeeded' && predictionData.status !== 'failed' && predictionData.status !== 'canceled') {
-        await new Promise(resolve => setTimeout(resolve, 1500)); // Tunggu 1.5 detik
+        await new Promise(resolve => setTimeout(resolve, 1500)); 
         
         const pollResponse = await fetch(predictionUrl, {
             headers: { 'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}` },
@@ -63,7 +68,7 @@ export default async (req, res) => {
         predictionData = await pollResponse.json();
     }
     
-    // 4. Cek Hasil Akhir
+    // 3. Cek Hasil Akhir
     if (predictionData.status === 'succeeded') {
         const outputText = Array.isArray(predictionData.output) ? predictionData.output.join('') : predictionData.output;
         res.status(200).json({ response: outputText });
